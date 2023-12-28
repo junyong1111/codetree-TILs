@@ -5,8 +5,9 @@ answer =''
 
 for _ in range(n):
     answer += sys.stdin.readline().strip()
-first = answer[0:7]
-second = answer[7:]
+half = len(answer)//2
+first = answer[0:half]
+second = answer[half:]
 
 print(first)
 print(second)
