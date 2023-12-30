@@ -2,7 +2,9 @@ import sys
 import math
 
 ages = []
-while 1:
+cnt= 100
+while cnt:
+    cnt-=1
     n = int(sys.stdin.readline())
     if n >= 30:
         break
