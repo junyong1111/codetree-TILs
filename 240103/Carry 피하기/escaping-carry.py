@@ -3,12 +3,11 @@ import sys
 
 n = int(sys.stdin.readline())
 carry = []
-visit = [0] * n
+
 
 for _ in range(n):
     carry.append(int(sys.stdin.readline()))
 
-carry.sort()
 
 def isCarry(a, b):
     A = list(map(int, str(a)))
@@ -26,6 +25,7 @@ answer = 0
 def backtracking(pre, level, index):
     global answer
     if index+1 == n:
+        answer = max(answer, level)
         pass
     else:
         for i in range(n):
@@ -34,12 +34,13 @@ def backtracking(pre, level, index):
                     continue
                 visit[i] = 1 
                 answer = max(answer, level)
-                backtracking(carry[i], level+1, i)
+                backtracking(pre+carry[i], level+1, i)
                 visit[i] = 0
         
         
 for i in range(n):
+    visit = [0] * n
     visit[i] = 1
-    backtracking(carry[i], 1, i)
+    backtracking(carry[i], 2, i)
     visit[i] = 0
-print(answer+1)
+print(answer)
