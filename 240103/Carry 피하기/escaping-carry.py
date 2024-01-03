@@ -29,7 +29,7 @@ def backtracking(pre, level, index):
         answer = max(answer, sum(visit))
         pass
     else:
-        for i in range(n):
+        for i in range(index, n):
             if visit[i] == 0:
                 if isCarry(pre, carry[i]) == False:
                     continue
