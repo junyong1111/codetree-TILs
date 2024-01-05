@@ -9,4 +9,4 @@ for _ in range(K):
     for i in range(a, b+1):
         block[i] +=1
 block.sort()
-print(block[round(N/2)])
+print(block[(N//2)+1])
