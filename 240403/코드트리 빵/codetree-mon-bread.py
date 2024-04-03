@@ -61,7 +61,9 @@ def shortestPathToBaseCamp(X, Y):
     for basecamp in basecampList:
         x, y = basecamp
         shortestBase.append([distance[y][x], x, y])
-    shortestBase.sort()
+    shortestBase.sort(key=lambda x : (x[0], x[2], x[1])) #-- 값 -> 같으면 더 작은 y 같으면 더 작은 x
+    
+    # print(shortestBase)
     
     #-- 해당 베이스 캠프 삭제
     for basecamp in basecampList:
@@ -100,6 +102,7 @@ def shortestPath(X, Y, target_x, target_y):
     prev_x = target_x
     prev_y = target_y
     
+
     while True:
         if trace[prev_y][prev_x] == -2:
             break
@@ -176,6 +179,9 @@ while True:
 
         #-- 가고싶은 편의점 위치 + 자신의 위치 전송
         start.append([target_x, target_y, x, y])
+    
+    
+    
     if len(start) == 0:
         break
 print(time)
