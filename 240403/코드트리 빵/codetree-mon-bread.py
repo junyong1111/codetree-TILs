@@ -4,7 +4,7 @@ from collections import deque
 input = sys.stdin.readline
 
 N, M = map(int, input().split())
-
+INF = int(1e9)
 def myprint(arr, n, m):
     for i in range(n):
         for j in range(m):
@@ -37,7 +37,7 @@ dy = [-1, 0, 0, 1]
 
 def shortestPathToBaseCamp(X, Y):
     queue = deque()
-    distance = [[-1 for _ in range(N)] for _ in range(N)]
+    distance = [[INF for _ in range(N)] for _ in range(N)]
     
     queue.append([X, Y])
     distance[Y][X] = 0
@@ -49,10 +49,13 @@ def shortestPathToBaseCamp(X, Y):
             nx = x + dx[i]
             ny = y + dy[i]
             
-            if 0 <= nx < N and 0 <= ny < N and distance[ny][nx] == -1 and grid[ny][nx] != -1:
+            if 0 <= nx < N and 0 <= ny < N and distance[ny][nx] == INF and grid[ny][nx] != -1:
                 distance[ny][nx] = distance[y][x] +1
                 queue.append([nx, ny])
     
+    # print("BASECAMPE")
+    # myprint(distance, N, N)
+    # print("BASECAMPE")
     
     shortestBase = []
     for basecamp in basecampList:
@@ -64,13 +67,13 @@ def shortestPathToBaseCamp(X, Y):
     for basecamp in basecampList:
         if shortestBase[0][1] == basecamp[0] and shortestBase[0][2] == basecamp[1]:
             basecampList.remove(basecamp)
-
+    # print(shortestBase[0][1], shortestBase[0][2])
     return shortestBase[0][1], shortestBase[0][2]
             
 def shortestPath(X, Y, target_x, target_y):
     queue = deque()
-    distance = [[-1 for _ in range(N)] for _ in range(N)]
-    trace = [[-1 for _ in range(N)] for _ in range(N)]
+    distance = [[INF for _ in range(N)] for _ in range(N)]
+    trace = [[INF for _ in range(N)] for _ in range(N)]
     
     queue.append([X, Y])
     distance[Y][X] = 0
@@ -84,7 +87,7 @@ def shortestPath(X, Y, target_x, target_y):
             nx = x + dx[i]
             ny = y + dy[i]
             
-            if 0 <= nx < N and 0 <= ny < N and distance[ny][nx] == -1 and grid[ny][nx] != -1:
+            if 0 <= nx < N and 0 <= ny < N and distance[ny][nx] == INF and grid[ny][nx] != -1:
                 distance[ny][nx] = distance[y][x] +1
                 trace[ny][nx] = i
                 if nx == target_x and ny == target_y:
@@ -111,6 +114,7 @@ def shortestPath(X, Y, target_x, target_y):
             prev_y -=1
     
     # myprint(trace, N, N)
+    # print(X+dx[dir], Y+dy[dir])
     return X+dx[dir], Y+dy[dir]
     
     
@@ -118,6 +122,13 @@ def shortestPath(X, Y, target_x, target_y):
 time = 0
 while True:
     time+=1
+    # print("tiem : {} 경과".format(time))
+    
+    # myprint(grid, N, N)
+    # print(ready)
+    # print(start)
+    # print(finish)
+    # print("===========")
     
     """ #step1
     격자에 있는 모든 인원은 본인이 가고 싶은 편의점 방향으로 1칸 움직인다.
@@ -130,6 +141,7 @@ while True:
         x, y = shortestPath(x, y, target_x, target_y) #-- 최단거리로 이동 후 
         
         if x == target_x and y == target_y:
+            # print("도착지 도착!!")
             finish.append([target_x, target_y])
         else:
             start.append([target_x, target_y, x, y])
@@ -164,14 +176,6 @@ while True:
 
         #-- 가고싶은 편의점 위치 + 자신의 위치 전송
         start.append([target_x, target_y, x, y])
-    # print("tiem : {} 경과".format(time))
-    
-    # myprint(grid, N, N)
-    # print(ready)
-    # print(start)
-    # print(finish)
-    # print("===========")
-    
     if len(start) == 0:
         break
 print(time)
