@@ -98,12 +98,11 @@ while K:
     is_hit = False
     for i in range(N):
         #던져
-        for team in team_list:
-            for ii in range(len(team)):
-                if (nx, ny) == team[ii]:
+        for j in range(len(team_list)):
+            for ii in range(len(team_list[j])):
+                if (nx, ny) == team_list[j][ii]:
                     answer += ((ii+1) * (ii+1))
-                    new_team = reversed(team)
-                    teamp = new_team
+                    team_list[j] = deque(reversed(list(team_list[j])))
                     is_hit = True
                     break
             if is_hit:
@@ -125,3 +124,10 @@ while K:
         y = y + guides[_dir].main_p[1]
 
 print(answer)
+
+
+
+
+
+
+
