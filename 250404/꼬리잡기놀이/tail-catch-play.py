@@ -102,7 +102,8 @@ while K:
             for ii in range(len(team)):
                 if (nx, ny) == team[ii]:
                     answer += ((ii+1) * (ii+1))
-                    team[0], team[-1] = team[-1], team[0]
+                    new_team = reversed(team)
+                    teamp = new_team
                     is_hit = True
                     break
             if is_hit:
@@ -116,10 +117,11 @@ while K:
         ny = ny + guides[_dir].sub_p[1]
 
     if cnt == N:
+        cnt = 0
         _dir = (_dir + 1) %4
         x, y = guides[_dir].point
     else:
-        x= x + guides[_dir].main_p[0]
+        x = x + guides[_dir].main_p[0]
         y = y + guides[_dir].main_p[1]
 
 print(answer)
