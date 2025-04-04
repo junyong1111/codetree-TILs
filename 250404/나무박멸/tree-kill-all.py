@@ -1,7 +1,6 @@
 import sys
 from collections import deque
 sys.setrecursionlimit(10**5)
-# sys.stdin = open('input.txt', "r")
 input = sys.stdin.readline
 
 dxs = [1, 0, -1, 0]
@@ -11,149 +10,135 @@ ddxs = [1, 1, -1, -1]
 ddys = [-1, 1, 1, -1]
 
 SIZE, YEAR, AREA, REMAIN = map(int, input().split())
-REMAIN += 100
+REMAIN += 1  # 제초제 지속 기간 (문제에 따라 +1 또는 그대로 사용)
 ANSWER = 0
-
 
 GRID = [list(map(int, input().split())) for _ in range(SIZE)]
 
-def pprint(arr):
-    for data in arr:
-        print(*data)
-
-
-
 def is_possible(nx, ny):
-    if nx < 0 or nx >= SIZE:
-        return False
-    if ny < 0 or ny >= SIZE:
-        return False
-    return True
+    return 0 <= nx < SIZE and 0 <= ny < SIZE
+
 def growup_tree():
     for i in range(SIZE):
         for j in range(SIZE):
-            cnt = 0
-            if GRID[i][j] > 0 :
+            if GRID[i][j] > 0:  # 나무가 있는 칸
+                cnt = 0
                 for dx, dy in zip(dxs, dys):
-                    nx = j + dx
-                    ny = i + dy
+                    nx, ny = j + dx, i + dy
                     if is_possible(nx, ny) and GRID[ny][nx] > 0:
-                        cnt +=1
+                        cnt += 1
                 GRID[i][j] += cnt
 
-def bfs(tree):
-    visit = [[False] * SIZE for _ in range(SIZE)]
-    target = []
-    x, y = tree
-    visit[y][x] = True
-    cnt = 0
-
-    for dx, dy in zip(dxs, dys):
-        nx = x + dx
-        ny = y + dy
-        if is_possible(nx, ny) and GRID[ny][nx] == 0 and visit[ny][nx] == False :
-            visit[ny][nx] = True
-            target.append((nx ,ny))
-            cnt +=1
-    return cnt, target
-
 def expand_tree():
-    num_list = []
-    target_list = []
+    growth = [[0] * SIZE for _ in range(SIZE)]
+    
     for i in range(SIZE):
         for j in range(SIZE):
-            if GRID[i][j] <= 0:
+            if GRID[i][j] <= 0:  # 나무가 없는 칸은 무시
                 continue
-            tree = (j, i)
-            cnt, target = bfs(tree)
-            if cnt == 0:
+                
+            tree_power = GRID[i][j]
+            empty_cells = []
+            
+            # 상하좌우 빈 칸 찾기
+            for dx, dy in zip(dxs, dys):
+                nx, ny = j + dx, i + dy
+                if is_possible(nx, ny) and GRID[ny][nx] == 0:
+                    empty_cells.append((nx, ny))
+            
+            # 번식할 빈 칸이 없으면 넘어감
+            if not empty_cells:
                 continue
-            num = GRID[i][j] // cnt
+                
+            # 각 빈 칸에 나무 번식
+            growth_per_cell = tree_power // len(empty_cells)
+            for nx, ny in empty_cells:
+                growth[ny][nx] += growth_per_cell
+    
+    # 동시에 번식 적용
+    for i in range(SIZE):
+        for j in range(SIZE):
+            if GRID[i][j] == 0:  # 빈 칸에만 번식
+                GRID[i][j] += growth[i][j]
 
-            num_list.append(num)
-            target_list.append(target)
-
-    for  ii in range(len(target_list)):
-        target = target_list[ii]
-        for t in target:
-            x, y = t
-            GRID[y][x] += num_list[ii]
-
-
-
-
-def _get_area(p):
-    x, y = p
-    cnt = GRID[y][x]
-    arr_list =[(x, y)]
-
+def _get_area(x, y):
+    cnt = GRID[y][x]  # 현재 위치의 나무 수
+    affected_cells = [(x, y)]  # 제초제 영향받는 칸
+    
+    # 4개 대각선 방향으로 탐색
     for ddx, ddy in zip(ddxs, ddys):
         nx, ny = x, y
-        for k in range(AREA):
+        for k in range(1, AREA + 1):  # 1칸부터 k칸까지 (0번째는 시작점이므로 제외)
             nx, ny = nx + ddx, ny + ddy
-            if is_possible(nx, ny):
-                if GRID[ny][nx] == -1:
-                    break
-                arr_list.append((nx, ny))
-                if GRID[ny][nx]  == 0:
-                    break
+            
+            # 범위를 벗어나면 해당 방향 탐색 중단
+            if not is_possible(nx, ny):
+                break
+                
+            # 벽을 만나면 해당 방향 탐색 중단
+            if GRID[ny][nx] == -1:
+                break
+                
+            affected_cells.append((nx, ny))
+            
+            # 나무가 있는 경우 제거할 나무 수에 추가
+            if GRID[ny][nx] > 0:
                 cnt += GRID[ny][nx]
-
-    return cnt, arr_list
-
-
-
+                
+            # 빈 칸을 만나면 해당 방향 탐색 중단
+            if GRID[ny][nx] == 0:
+                break
+    
+    return cnt, affected_cells
 
 def find_area():
-    max_area = 0
-    point = (0, 0)
-    area_list = []
+    max_trees = 0
+    best_point = None
+    best_cells = []
+    
     for i in range(SIZE):
         for j in range(SIZE):
-            if GRID[i][j] > 0:
-                cnt, temp = _get_area((j, i))
-                if cnt > max_area:
-                    max_area = cnt
-                    point = (j, i)
-                    area_list = temp
-    return point, area_list
+            if GRID[i][j] > 0:  # 나무가 있는 칸에만 제초제 뿌림
+                trees, affected_cells = _get_area(j, i)
+                if trees > max_trees:
+                    max_trees = trees
+                    best_point = (j, i)
+                    best_cells = affected_cells
+    
+    if best_point is None:  # 나무가 없는 경우
+        return (0, 0), []
+        
+    return best_point, best_cells
 
+def remove_tree(affected_cells):
+    removed = 0
+    
+    for x, y in affected_cells:
+        if GRID[y][x] > 0:  # 나무가 있는 칸
+            removed += GRID[y][x]
+        GRID[y][x] = -REMAIN  # 제초제 표시
+    
+    return removed
 
-def remove_tree(arr):
-    ret = 0
-    for i in range(len(arr)):
-        x, y =  arr[i]
-        ret += GRID[y][x]
-        GRID[y][x] = -REMAIN
-    return ret
-
-
-
-
-def remove_arr():
+def decrease_herbicide():
     for i in range(SIZE):
         for j in range(SIZE):
-            if GRID[i][j] < -2:
-                GRID[i][j] +=1
-
-            if GRID[i][j] > -100 and GRID[i][j] < -2:
-                GRID[i][j] = 0
-
-while YEAR:
-    YEAR-=1
-    #1.
+            if GRID[i][j] < 0 and GRID[i][j] != -1:  # 제초제가 있고 벽이 아닌 칸
+                GRID[i][j] += 1  # 제초제 수명 감소
+                
+# 시뮬레이션 시작
+for _ in range(YEAR):
+    # 1. 나무 성장
     growup_tree()
-
-    #2. 번식
+    
+    # 2. 나무 번식
     expand_tree()
-    #3.제초제 위치 찾기
-    p, arr = find_area()
-
-    # 제초제 뿌리기
-    ANSWER += remove_tree(arr)
-
-    # 제초제 수명 감소
-    remove_arr()
+    
+    # 3. 제초제 위치 결정 및 뿌리기
+    point, affected_cells = find_area()
+    ANSWER += remove_tree(affected_cells)
+    
+    # 4. 제초제 수명 감소
+    decrease_herbicide()
 
 print(ANSWER)
-
