@@ -192,6 +192,8 @@ def go_base_camp(idx):
     max_p = [-1, -1]
     for i in reversed(range(N)):
         for j in reversed(range(N)):
+            if Point(j, i) in BLOCK_LIST:
+                continue
             if grid[i][j] == 1 and Point(j, i) not in BLOCK_LIST: #base캠프라면 해당 위치에서 target 편의점까지 최단 거리 계산
                 dis = bfs((j,i), target)
                 if dis <= max_dis:
@@ -216,34 +218,19 @@ def pprint():
         print(person)
 time = 0
 while True:
-    block_list = []
     time +=1
     # 1. 이동
     block = move_person()
     if block:
         for b in block:
-            block_list.append(b)
+            BLOCK_LIST.append(b)
 
     if time <= M:
         block = (go_base_camp(time))
         if block:
-            block_list.append(block)
+            BLOCK_LIST.append(block)
 
     # 2. 베이스 캠프 이동 -> 이동 불가는 맨 마지막
-    if block_list:
-        for block in block_list:
-            if not block:
-                continue
-            BLOCK_LIST.append(block)
     if is_done():
         break
 print(time)
-
-
-
-
-
-
-
-
-
