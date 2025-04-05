@@ -3,7 +3,6 @@ from collections import deque
 
 
 sys.setrecursionlimit(10**6)
-# sys.stdin = open("input.txt", "r")
 input = sys.stdin.readline
 
 N, M = map(int, input().split())
@@ -83,7 +82,7 @@ init()
 
 def find_shortest_path(person):
     dxs = [0, -1, 1, 0]
-    dys = [1, 0, 0, 1]
+    dys = [1, 0, 0, -1]
     q = deque()
     x, y = person.point.x, person.point.y
     target = Point(person.target.x, person.target.y)
@@ -126,7 +125,7 @@ def target_dir(
 
 def move_person():
     dxs = [0, -1, 1, 0]
-    dys = [1, 0, 0, 1]
+    dys = [1, 0, 0, -1]
     block_list = []
     # 2. 편의점 도착 갱신 -> 이동 불가는 맨 마지막
     for person in PERSON_LIST: #1번 사람부터 차례 대로 이동 이동 조건은 위치가 -1이 아닌 경우
@@ -136,7 +135,7 @@ def move_person():
         #현재 베이스 캠프에서 목표 편의점까지 bfs로 재 탐색 필요
         shortest_path = find_shortest_path(person)
         if shortest_path == None:
-            # print("목표지점까지 최단거리가 없습니다!!!! ERROR")
+            print("목표지점까지 최단거리가 없습니다!!!! ERROR")
             return
 
         _target_dir = target_dir(
@@ -234,3 +233,7 @@ while True:
     if is_done():
         break
 print(time)
+
+
+
+
