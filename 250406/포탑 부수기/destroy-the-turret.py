@@ -109,7 +109,6 @@ def select_attack_turret(
         debugger = False
 ):
     TURRET_LIST.sort()
-
     weak_turret = TURRET_LIST[0]  # 공격자 포탑 선정
     target_turret = TURRET_LIST[-1]  # 공격당할 포탑
 
@@ -136,8 +135,8 @@ def select_attack_turret(
 
 def is_possible(nx, ny):
     if nx < 0:
-        return N-1, ny
-    if nx >= N:
+        return M-1, ny
+    if nx >= M:
         return 0, ny
     if ny < 0:
         return nx, N-1
@@ -145,7 +144,7 @@ def is_possible(nx, ny):
         return nx , 0
     return nx, ny
 
-def get_shortes_path_with_laser(
+def get_shortest_path_with_laser(
     start,
     target
 ):
@@ -183,7 +182,7 @@ def attack_with_laser(
     debugger =False
 ):
     # 레이저를 이용한 최단 경로 확인
-    shortest_path = get_shortes_path_with_laser(
+    shortest_path = get_shortest_path_with_laser(
         start = weak_turret.point,
         target = target_turret.point
     )
@@ -222,10 +221,10 @@ f"""[타겟 포탑 공격 받음]
 
 def is_possible_with_missile(nx, ny):
     if nx < 0 :
-        nx = N-1
+        nx = M-1
     if ny < 0:
         ny = N-1
-    if nx >= N:
+    if nx >= M:
         nx = 0
     if ny >=N:
         ny = 0
@@ -275,7 +274,7 @@ def attack_with_missile(
 
     for area in attack_area:
         for turret in TURRET_LIST:
-            if area == turret.point:
+            if area == turret.point and area not in BROKEN_TURRET_LIST:
                 if debugger:
                     print("[목표 발견]")
                     print(turret)
@@ -339,5 +338,11 @@ while K:
     update_turret()
     repair_turret()
 
+    if len(TURRET_LIST) <= 1:
+        break
+
 TURRET_LIST.sort()
 print(TURRET_LIST[-1].power)
+
+
+# 622 turn
