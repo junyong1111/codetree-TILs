@@ -59,8 +59,8 @@ f"""[MY TURRET INFO]
         #공격력 낮고 마지막 공격 턴이 높고 좌표의 합이 높고 열이 높고
         if self.power == other.power:
             if self.last_turn == other.last_turn:
-                if self.point == other.point:
-                    return self.point.x > other.point.x
+                if (self.point.x + self.point.y) == (other.point.x + other.point.y):
+                    return self.point.y > other.point.y
                 return (self.point.x + self.point.y) > (other.point.x + other.point.y)
             return self.last_turn > other.last_turn
         return self.power < other.power
@@ -229,58 +229,50 @@ def is_possible_with_missile(nx, ny):
     if ny >=N:
         ny = 0
     return nx, ny
-def get_attack_area(
-    weak_turret,
-    target_turret,
-    debugger=False
-):
+
+
+def get_attack_area(weak_turret, target_turret, debugger=False):
     # 상, 우상, 우, 우하, 하, 좌하, 좌, 좌상
-    dxs = [0, 1, 1, 1, 0, -1 ,-1 ,-1]
+    dxs = [0, 1, 1, 1, 0, -1, -1, -1]
     dys = [-1, -1, 0, 1, 1, 1, 0, -1]
 
     target_list = []
     x, y = target_turret.point.x, target_turret.point.y
 
-
     for dx, dy in zip(dxs, dys):
         nx = x + dx
         ny = y + dy
 
-        nx, ny =  is_possible_with_missile(nx ,ny) # 넘어가는 부분 모두 맞춰주도록 설정
-        if Point(nx, ny) not in BROKEN_TURRET_LIST and Point(nx ,ny) != weak_turret.point : #부서진 곳에 없고 공격자 포탑이 아니라면 부숴 버리기
+        nx, ny = is_possible_with_missile(nx, ny)
+        # 부서진 포탑인지 확인
+        is_broken = False
+        for broken_point in BROKEN_TURRET_LIST:
+            if nx == broken_point.x and ny == broken_point.y:
+                is_broken = True
+                break
+
+        if not is_broken and (nx != weak_turret.point.x or ny != weak_turret.point.y):
             if debugger:
                 print("[타겟 지정]")
-            target_list.append(Point(nx ,ny))
+            target_list.append(Point(nx, ny))
     return target_list
 
 
 
-def attack_with_missile(
-    weak_turret,
-    target_turret,
-    debugger=False
-):
-    #포탄 공격은 최단 경로 상관없이 해당 위치에서 8방향 만약 인덱스를 초과한다면 넘어가도록 설정
-    # 우선 공격자는 원래 데미지에 맞게 공격
+def attack_with_missile(weak_turret, target_turret, debugger=False):
     target_turret.power = max(target_turret.power - weak_turret.power, 0)
-    attack_power = weak_turret.power // 2  # 나머지 경로에는 절반만
+    attack_power = weak_turret.power // 2
 
-    # 나머지 경로 계산
-    attack_area = get_attack_area(
-        weak_turret,
-        target_turret,
-        debugger
-    )
+    attack_area = get_attack_area(weak_turret, target_turret, debugger)
 
     for area in attack_area:
         for turret in TURRET_LIST:
-            if area == turret.point and area not in BROKEN_TURRET_LIST:
+            if area.x == turret.point.x and area.y == turret.point.y:
                 if debugger:
                     print("[목표 발견]")
                     print(turret)
                 turret.effected = True
-                turret.power = max (turret.power - attack_power, 0)
-
+                turret.power = max(turret.power - attack_power, 0)
 
 def attack_turret(
     weak_turret,
@@ -320,12 +312,14 @@ def repair_turret():
     for turret in TURRET_LIST:
         if turret.effected == True:
             turret.effected = False
-            continue
-        turret.power +=1
+        else:
+            turret.power +=1
 turn = 0
 while K:
     K-=1
     turn +=1
+    if len(TURRET_LIST) <= 1:
+        break
 
     # 공격자 포탑을 선정 이후 공격력 증가
     weak_turret,target_turret = select_attack_turret(turn, debugger=False)
@@ -338,8 +332,7 @@ while K:
     update_turret()
     repair_turret()
 
-    if len(TURRET_LIST) <= 1:
-        break
+
 
 TURRET_LIST.sort()
 print(TURRET_LIST[-1].power)
