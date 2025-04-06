@@ -60,7 +60,7 @@ f"""[MY TURRET INFO]
         if self.power == other.power:
             if self.last_turn == other.last_turn:
                 if (self.point.x + self.point.y) == (other.point.x + other.point.y):
-                    return self.point.y > other.point.y
+                    return self.point.x > other.point.x
                 return (self.point.x + self.point.y) > (other.point.x + other.point.y)
             return self.last_turn > other.last_turn
         return self.power < other.power
