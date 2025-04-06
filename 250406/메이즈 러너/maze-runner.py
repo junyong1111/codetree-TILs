@@ -1,4 +1,5 @@
 import sys
+
 sys.setrecursionlimit(10**5)
 # sys.stdin = open("input.txt", "r")
 input = sys.stdin.readline
@@ -181,8 +182,8 @@ def get_minimum_rec(
     for rec in range(2, N+1):
         if debugger:
             print(f"{rec} 크기의 정사각형 찾는중....")
-        for i in range(0, N-rec):
-            for j in range(0, N-rec):
+        for i in range(0, N-rec+1):
+            for j in range(0, N-rec+1):
                 if debugger:
                     print(f"{i, j} 위치에서 {rec}크기의 정사각형 찾아봄")
                 if get_rec_area(
