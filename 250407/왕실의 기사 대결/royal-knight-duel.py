@@ -1,5 +1,6 @@
 import sys
 from collections import deque
+from tkinter.ttk import Treeview
 
 sys.setrecursionlimit(10**6)
 # sys.stdin = open("input.txt", "r")
@@ -8,7 +9,6 @@ input = sys.stdin.readline
 # 상 우 하 좌
 dxs = [0, 1, 0, -1]
 dys = [-1, 0, 1, 0]
-ANSWER = []
 class Point():
     def __init__(self, x, y):
         self.x = x
@@ -25,8 +25,13 @@ Y : {self.y} X : {self.x}
 class Knight():
     def __init__(self, number, health = 0):
         self.knight_point = []
+        self.start_health = 0
         self.health = health
         self.number = number
+        self.status = True
+        self.hit = 0
+    def set_start_health(self, start_health ):
+        self.start_health = start_health
     def add_knight(self, x, y, h, w, health):
         for i in range(y, y + h):
             for j in range(x,  x + w):
@@ -43,6 +48,9 @@ class Knight():
 f"""[기사 정보 출력]
 위치 : {self.knight_point}
 체력 : {self.health}
+현재 상태 : {self.status}
+처음 체력 : {self.start_health}
+뚜들겨 맞은 횟수 : {self.hit}
 """)
     def __eq__(self, other):
         return self.knight_point == other.knight_point
@@ -71,10 +79,10 @@ def init():
     for idx, knight in enumerate(knignt_input, start = 1):
         y, x, h, w, k = knight
         my_knight = Knight(number=idx)
+        my_knight.set_start_health(start_health=k)
         my_knight.add_knight(x-1, y-1, h, w, k)
 
         KNIGHT_LIST[idx] = my_knight
-        ANSWER.append(0)
 
 init()
 
@@ -95,6 +103,7 @@ def check_move(
     first
 ):
     new_knight = Knight(number=knight.number, health=knight.health)
+    new_knight.set_start_health(start_health=knight.start_health)
     mat_knight_list = []
     for p in knight.knight_point:
         if debugger:
@@ -137,7 +146,7 @@ def check_move(
             #애초에 이동 못하면 빠임
             if debugger:
                 print("범위 나감요 수고")
-                return False
+            return False
     return new_knight, mat_knight_list
 
 
@@ -149,12 +158,11 @@ def clean_up_knight(
         if v.health == 0:
             if debugger:
                 print(f"{k}번째 기사 빠이용")
-            remove_idx.append(k)
-            ANSWER[v.number-1] = 0
+            v.status = False
+
     
-    
-    for idx in remove_idx:
-        del KNIGHT_LIST[idx]
+    # for idx in remove_idx:
+    #     del KNIGHT_LIST[idx]
 
 
 def move_knight(
@@ -165,6 +173,8 @@ def move_knight(
     #우선 처음 시작하는 기사는 데미지 없이 밀어내기 가능
     new_knight_list = []
     knight = KNIGHT_LIST[idx]
+    if knight.status == False:
+        return
     first = True
     knight_queue = deque()
     knight_queue.append(knight)
@@ -201,22 +211,21 @@ def move_knight(
             print("[교체 전]")
             print(KNIGHT_LIST[new_knight.number])
 
+        ret = before - max(KNIGHT_LIST[new_knight.number].health, 0)
+        new_knight.hit = ret
         KNIGHT_LIST[new_knight.number] = new_knight
-        ret = before - KNIGHT_LIST[new_knight.number].health
+
         if debugger:
             print("[교체 후]")
             print(KNIGHT_LIST[new_knight.number])
-        ANSWER[new_knight.number-1] += ret
     clean_up_knight(
         debugger=debugger
     )
-
 
 turn = 0
 while Q:
     Q-=1
     turn+=1
-    # print(f"{turn} 번째 겜 시작이요")
     idx,dir = map(int, input().split())
 
     move_knight(
@@ -225,9 +234,8 @@ while Q:
         debugger = False
     )
 
-
 answer = 0
-for ans in ANSWER:
-    answer += ans
-
+for k,v  in KNIGHT_LIST.items():
+    if v.status == True:
+        answer += v.start_health - v.health
 print(answer)
