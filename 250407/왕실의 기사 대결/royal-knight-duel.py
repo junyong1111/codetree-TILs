@@ -155,7 +155,7 @@ def clean_up_knight(
 ):
     remove_idx = []
     for k, v in KNIGHT_LIST.items():
-        if v.health == 0:
+        if v.health <= 0:
             if debugger:
                 print(f"{k}번째 기사 빠이용")
             v.status = False
